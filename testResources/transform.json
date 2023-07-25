@@ -1,0 +1,54 @@
+{
+  "Order Number": {
+    "name": "OrderID",
+    "type": "Integer",
+    "combine": null,
+    "regex": "\\d*"
+  },
+  "Year": {
+    "name": null,
+    "type": "String"
+  },
+  "Month": {
+    "name": null,
+    "type": "String"
+  },
+  "Day": {
+    "name": null,
+    "type": "String"
+  },
+  "OrderDate": {
+    "name": null,
+    "type": "Object",
+    "combine": [
+      "Year",
+      "Month",
+      "Day"
+    ],
+    "format": "%Y-%m-%d"
+  },
+  "Product Number": {
+    "name": "ProdudctId",
+    "type": "String",
+    "combine": null,
+    "regex": "[A-Z0-9]*"
+  },
+  "Product Name": {
+    "name": "ProdudctName",
+    "type": "String",
+    "combine": null,
+    "regex": "[A-Za-Z]*"
+  },
+  "Count": {
+    "name": "Quantity",
+    "type": "BigDecimal",
+    "combine": null,
+    "regex": "\\d,\\d{3}.\\d{2}"
+  },
+  "Unit": {
+    "name": null,
+    "type": "String",
+    "suffix": "kg",
+    "default": "0"
+  }
+}
