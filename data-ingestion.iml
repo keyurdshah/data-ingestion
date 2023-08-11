@@ -3,11 +3,12 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/testResources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/ingest-common" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/ingest-services" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/ingest-common" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/testResources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/services/api" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/cli" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/resources" type="java-resource" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (data-ingestion)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -15,6 +16,14 @@
   <component name="PackageRequirementsSettings">
     <option name="removeUnused" value="true" />
     <option name="modifyBaseFiles" value="true" />
+  </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/services/cli/ingestcli" />
+        <option value="$MODULE_DIR$/packages/ingest-common/ingestcommon" />
+      </list>
+    </option>
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

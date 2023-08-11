@@ -21,32 +21,43 @@ python fileingestconsole.py --csv <csv-dir>/some.csv --transform <trasform-dir>/
 
 ### Implemetnation 
 
-#### Files
+#### Artifacts
 
 ```
-data-ingestion/
-├── data-ingestion.iml (IntelliJ IDEA)
-├── ingest-common/ (ingest-package can be refer as console or API or lambda process to scale the processing)
-│   ├── __init__.py
-│   └── fileprocessor.py (FileProcessor implementation for all the necessary method)
-├── ingest-services/
-│   ├── __init__.py
-│   ├── fileingestconsole.py (main method is here)
-│   └── out.csv
-├── ReadMe.md (coumentation)
-├── requirements.txt (required 3rd Party packages from PyPI using pip install -r requirements.txt)
-├── resources/
-│   ├── largefile.csv (183KB Datafile)
-│   └── transform.json (config file for parsing CSV header and transformation)
-├── setup.py
-├── testResources/
-│   ├── baddata.csv
-│   ├── largefile.csv
-│   └── transform.json
-└── tests/ (unittest for code coverage + failure test for currupted date)
-    ├── __init__.py
-    └── test_fileprocessor.py
-
+data-ingestion
+├── ReadMe.md
+├── packages
+│   ├── ingest-common
+│   │   ├── ingestcommon
+│   │   │   ├── __init__.py
+│   │   │   │   ├── __init__.cpython-311.pyc
+│   │   │   │   ├── datatransform.cpython-311.pyc
+│   │   │   │   └── fileprocessor.cpython-311.pyc
+│   │   │   ├── datatransform.py
+│   │   │   └── fileprocessor.py
+│   │   ├── setup.py
+│   │   └── tests
+│   │       ├── __init__.py
+│   │       │   ├── __init__.cpython-311.pyc
+│   │       │   └── test_fileprocessor.cpython-311.pyc
+│   │       └── test_fileprocessor.py
+│   └── testResources
+│       ├── baddata.csv
+│       ├── largefile.csv
+│       └── transform.json
+├── requirements.txt
+└── services
+    ├── api
+    │   └── ingestsapi
+    │       └── __init__.py
+    ├── cli
+    │   ├── ingestcli
+    │   │   ├── __init__.py
+    │   │   └── fileingestconsole.py
+    │   └── setup.py
+    └── resources
+        ├── largefile.csv
+        └── transform.json
 ```
 
 ### Execution 

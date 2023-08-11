@@ -1,10 +1,9 @@
-import logging
-import os.path
-import sys
-from os import getcwd
-
-from fileprocessor import FileProcessor
 import json
+import logging
+import sys
+
+from ingestcommon.datatransform import DataTransform
+from ingestcommon.fileprocessor import FileProcessor
 
 if __name__ == "__main__":
     try:
@@ -26,20 +25,16 @@ if __name__ == "__main__":
                     ++i
                     continue
 
+        cfg:DataTransform = DataTransform(configfile)
+        fp = FileProcessor(transform=cfg, chunksize=1)
 
-
-
-        fp = FileProcessor(chunksize=1)
-        with open(file=configfile) as file:
-            config:dict = json.loads(file.read())
-            fp.config(config)
         with open(file=output,mode="w+") as outfile:
             for string in fp.load(csvfile):
                 outfile.write(str(string))
-    except FileNotFoundError as efx:
-        logging.Logger("Default").error(msg=str(efx))
+    except FileNotFoundError as ex:
+        logging.Logger("Default").error(msg=str(ex))
     except ValueError as ex:
-        logging.Logger("Default").error(msg=str(efx))
+        logging.Logger("Default").error(msg=str(ex))
     except Exception as ex:
        raise ex
 

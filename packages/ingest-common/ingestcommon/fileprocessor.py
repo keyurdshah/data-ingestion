@@ -6,22 +6,25 @@ import traceback
 import pandas
 from pandas import DataFrame
 
+from ingestcommon.datatransform import DataTransform
+
 logger = logging.getLogger()
+
+
 class FileProcessor:
-    chunks:int = None
-    sourceColumns: dict = None
-    targetColumns: dict = None
-    mappingColumns: dict = None
+    chunks: int = None
+    trfm_config: dict = None
 
 
-    def __init__(self, chunksize: int = 1000):
+    def __init__(self, transform: DataTransform, chunksize: int = 1000):
         self.chunks = chunksize
+        self.trfm_config = transform.Config
 
     def extract(self, loc: str) -> DataFrame:
         """
         Read the CSV files in chunks
         :param loc: file path/URL path
-        :return: yielding row dataframe of given CSV without transformation
+        :return: row
         """
         # using pandas library for reading file in chunks rather than full file in memory
 
@@ -29,7 +32,7 @@ class FileProcessor:
         for df in reader:
             yield df
 
-    def _get_dtype(self, type:str) -> type:
+    def _get_dtype(self, type: str) -> type:
         """
         Translate String value to Platform suppported data type type
         :param type: String input
@@ -46,64 +49,51 @@ class FileProcessor:
         if (type == "Boolean"):
             return bool
         raise Exception("Type not supported")
-    def config(self, trsfm_conf:dict):
-        self.mappingColumns ={}
-        self.targetColumns={}
-        self.sourceColumns = trsfm_conf
 
-        for k in trsfm_conf.keys():
-            v = trsfm_conf[k]
-            #name of the target column
-            name = v.get('name')
-            #String type to Platform Types
-            type = v.get('type')
-            if name:
-                self.mappingColumns[k] = name
-                self.targetColumns[name] = self._get_dtype(type)
-            else:
-                self.targetColumns[k] = self._get_dtype(type)
-
-
-    def transform(self, loc:str):
+    def transform(self, loc: str):
         """
         Apply transformation for given file
         :param loc: file path/ URL path
         :return: dataframe reference for a given chunk read of file
         """
-        return self._transform(loc,self.sourceColumns,self.mappingColumns,self.targetColumns)
-    def _transform(self, loc: str, source: dict, mapping: dict, target: dict):
+        for df in self.extract(loc):
+            yield self._get_transform(df)
+
+    def _get_transform(self, df: DataFrame):
         """
         apply Transformation input filestream
         :param loc: filepath/URL apth
-        :param source: dictionary of source columns dereived from self.config() execution
-        :param mapping: dictionary of mapping source:target columns
-        :param target: dictionary of target output columns derived from self.config() execution
+        :param transformConfig: dictionary of source columns dereived from self.config() execution
         :return: yielding dataframe for given chunkSize
         """
         rows = 0
-        for df in self.extract(loc):
-            try:
-                # read only necessary source columns
-                src_df = DataFrame(df, columns=list(source.keys()))
 
-                # perform transformation
+        try:
+            # read only necessary source columns
+            src_df = DataFrame(df, columns=list(self.trfm_config.keys()))
 
-                # rename the columns using 1-1 rename mapping
-                src_df = src_df.rename(columns=mapping)
+            # perform transformation
+            out_df = DataFrame(data={})
 
-                # apply the final output data types
-                out_df = DataFrame(src_df, columns=list(target.keys())).astype(target)
+            for k in self.trfm_config.keys():
+                v = self.trfm_config[k]
+                # name of the target column
+                name = v.get('name')
+                # String type to Platform Types
+                type = v.get('type')
+                if name:
+                    out_df[name] = src_df[k].astype(self._get_dtype(type))
+                else:  # no rename (either a new column with suffix or combining source column)
+                    if v.get('combine') and v.get('type') == 'Object':
+                        out_df[k] = pandas.to_datetime(src_df[v.get('combine')], format=v.get('format'))
+                    if v.get('suffix'):
+                        out_df[k] = src_df[k].fillna('') + 'kg'
 
-                # add column special case of string to date
-                out_df['OrderDate'] = pandas.to_datetime(
-                    src_df['Year'].map(str) + '-' + src_df['Month'].map(str) + '-' + src_df['Day'].map(str),
-                    format="%Y-%m-%d")
-                out_df['Unit'] = 'kg'
-                rows+= src_df.shape[0]
-                yield out_df
-            except Exception as ex:
-                logger.error("Data Error after row: " + str(rows) + " Error: " + str(ex))
-                raise ex
+            rows += src_df.shape[0]
+            return out_df
+        except Exception as ex:
+            logger.error("Data Error after row: " + str(rows) + " Error: " + str(ex))
+            raise ex
 
     def load(self, loc: str) -> str:
         """
